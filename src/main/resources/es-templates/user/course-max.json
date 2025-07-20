@@ -1,0 +1,28 @@
+{
+  "size": 0,
+  "query": {
+    "nested": {
+      "path": "grades",
+      "query": {
+        "term": { "grades.course.keyword": "{{course}}" }
+      }
+    }
+  },
+  "aggs": {
+    "max_score": {
+      "nested": { "path": "grades" },
+      "aggs": {
+        "filter_course": {
+          "filter": {
+            "term": { "grades.course.keyword": "{{course}}" }
+          },
+          "aggs": {
+            "max_score": {
+              "max": { "field": "grades.score" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "size": 0,
+  "aggs": {
+    "all_grades": {
+      "nested": { "path": "grades" },
+      "aggs": {
+        "avg_score": {
+          "avg": { "field": "grades.score" }
+        }
+      }
+    }
+  }
+}

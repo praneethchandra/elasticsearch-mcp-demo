@@ -1,0 +1,7 @@
+spring:
+  elasticsearch:
+    rest:
+      uris: ${SPRING_ELASTICSEARCH_REST_URIS:http://localhost:9200}
+app:
+  query:
+    template-path: classpath:es-templates/

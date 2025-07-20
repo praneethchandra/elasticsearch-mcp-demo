@@ -1,0 +1,12 @@
+{
+  "size": 0,
+  "query": { "term": { "userId": {{userId}} } },
+  "aggs": {
+    "count_by_course": {
+      "terms": { "field": "courses.keyword" }
+    },
+    "sum_userId": {
+      "sum": { "field": "userId" }
+    }
+  }
+}

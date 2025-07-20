@@ -1,0 +1,2 @@
+{ "index": "user" }
+{ "query": { "match": { "userName": "{{userName}}" } } }

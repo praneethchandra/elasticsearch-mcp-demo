@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "User",
+  "type": "object",
+  "properties": {
+    "userId": { "type": "integer" },
+    "userName": { "type": "string" },
+    "courses": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "grades": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "course": { "type": "string" },
+          "score": { "type": "number" }
+        },
+        "required": ["course", "score"]
+      }
+    }
+  },
+  "required": ["userId", "userName", "courses", "grades"]
+}

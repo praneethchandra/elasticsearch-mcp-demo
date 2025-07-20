@@ -1,0 +1,7 @@
+{
+  "query": {
+    "script": {
+      "script": "doc['courses.keyword'].length > 1"
+    }
+  }
+}
