@@ -22,6 +22,42 @@ public class ElasticsearchService {
         this.tpl = tpl;
     }
 
+    // CRUD Operations
+    public JsonNode create(String indexName, String documentId, String document) throws IOException {
+        Request req = new Request("POST", "/" + indexName + "/_doc/" + documentId);
+        req.setJsonEntity(document);
+        return parse(es.performRequest(req));
+    }
+
+    public JsonNode create(String indexName, String document) throws IOException {
+        Request req = new Request("POST", "/" + indexName + "/_doc");
+        req.setJsonEntity(document);
+        return parse(es.performRequest(req));
+    }
+
+    public JsonNode read(String indexName, String documentId) throws IOException {
+        Request req = new Request("GET", "/" + indexName + "/_doc/" + documentId);
+        return parse(es.performRequest(req));
+    }
+
+    public JsonNode update(String indexName, String documentId, String document) throws IOException {
+        Request req = new Request("PUT", "/" + indexName + "/_doc/" + documentId);
+        req.setJsonEntity(document);
+        return parse(es.performRequest(req));
+    }
+
+    public JsonNode partialUpdate(String indexName, String documentId, String partialDocument) throws IOException {
+        Request req = new Request("POST", "/" + indexName + "/_update/" + documentId);
+        req.setJsonEntity("{\"doc\":" + partialDocument + "}");
+        return parse(es.performRequest(req));
+    }
+
+    public JsonNode delete(String indexName, String documentId) throws IOException {
+        Request req = new Request("DELETE", "/" + indexName + "/_doc/" + documentId);
+        return parse(es.performRequest(req));
+    }
+
+    // Search Operations
     public JsonNode search(String schemaName, String templateName, QueryParams params) throws IOException {
         String body = tpl.render(schemaName, templateName, params);
         Request req = new Request("GET", "/" + schemaName + "/_search");
@@ -40,6 +76,20 @@ public class ElasticsearchService {
         String body = tpl.render(schemaName, templateName, params);
         Request req = new Request("GET", "/" + schemaName + "/_search");
         req.setJsonEntity(body);
+        return parse(es.performRequest(req));
+    }
+
+    // Template-based operations using YAML configuration
+    public JsonNode executeTemplate(String operationType, String templateName, QueryParams params) throws IOException {
+        return tpl.executeTemplate(operationType, templateName, params, this);
+    }
+
+    // Raw query execution
+    public JsonNode executeRawQuery(String indexName, String method, String endpoint, String body) throws IOException {
+        Request req = new Request(method, "/" + indexName + endpoint);
+        if (body != null && !body.isEmpty()) {
+            req.setJsonEntity(body);
+        }
         return parse(es.performRequest(req));
     }
 

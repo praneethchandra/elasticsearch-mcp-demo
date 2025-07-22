@@ -1,0 +1,106 @@
+operationType: USER_OPERATIONS
+templates:
+  - name: searchByUserId
+    queryType: search
+    baseQuery:
+      query:
+        term:
+          userId: "${userId}"
+
+  - name: searchByUserName
+    queryType: search
+    baseQuery:
+      query:
+        match:
+          userName: "${userName}"
+
+  - name: searchByCourse
+    queryType: search
+    baseQuery:
+      query:
+        terms:
+          courses: "${courses}"
+
+  - name: searchByGradeRange
+    queryType: search
+    baseQuery:
+      query:
+        nested:
+          path: grades
+          query:
+            bool:
+              must:
+                - term:
+                    grades.course: "${course}"
+                - range:
+                    grades.score:
+                      gte: "${minScore}"
+                      lte: "${maxScore}"
+
+  - name: multiSearchUsers
+    queryType: msearch
+    baseQuery: |
+      {"index": "user"}
+      {"query": {"term": {"userId": "${userId1}"}}}
+      {"index": "user"}
+      {"query": {"term": {"userId": "${userId2}"}}}
+
+  - name: aggregateGradesByCourse
+    queryType: agg
+    baseQuery:
+      size: 0
+      aggs:
+        courses:
+          nested:
+            path: grades
+          aggs:
+            course_stats:
+              terms:
+                field: grades.course.keyword
+              aggs:
+                avg_score:
+                  avg:
+                    field: grades.score
+                max_score:
+                  max:
+                    field: grades.score
+                min_score:
+                  min:
+                    field: grades.score
+
+  - name: aggregateUsersByCourse
+    queryType: agg
+    baseQuery:
+      size: 0
+      aggs:
+        course_enrollment:
+          terms:
+            field: courses.keyword
+            size: 100
+
+  - name: aggregateGradeDistribution
+    queryType: agg
+    baseQuery:
+      query:
+        nested:
+          path: grades
+          query:
+            term:
+              grades.course: "${course}"
+      aggs:
+        grade_ranges:
+          nested:
+            path: grades
+          aggs:
+            filtered_grades:
+              filter:
+                term:
+                  grades.course: "${course}"
+              aggs:
+                score_histogram:
+                  histogram:
+                    field: grades.score
+                    interval: 10
+                    min_doc_count: 1
+
+responseProcessor: com.example.elasticsearch.processor.impl.UserOperationsResponseProcessor
